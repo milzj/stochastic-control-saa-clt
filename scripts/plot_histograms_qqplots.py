@@ -35,8 +35,8 @@ def plot_histograms(results, params, save_path):
     # First pass: calculate global x and y limits
     for t, data in results.items():
         mu, std = np.mean(data), np.std(data)
-        print(mu)
-        print(std)
+        print("mu", mu)
+        print("std", std)
 
         # Determine min/max for x-axis using 3-sigma rule
         current_min_x = mu - 3 * std
@@ -66,7 +66,7 @@ def plot_histograms(results, params, save_path):
     min_t = min(results.keys())
     for t, data in results.items():
         # 1. Create a new figure
-        plt.figure(figsize=(5, 5))
+        plt.figure()
 
         # 2. Plot the main data
         label = r'$N^{1/2}(\hat{V}_{t,N}(x_t) - V_t(x_t))$'
