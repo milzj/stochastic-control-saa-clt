@@ -52,7 +52,7 @@ python3 plot_true_variance.py && python3 plot_histograms_qqplots.py
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgments
 
