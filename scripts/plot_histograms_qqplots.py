@@ -9,7 +9,7 @@ os.makedirs(save_path, exist_ok=True)
 
 import numpy as np
 import matplotlib.pyplot as plt
-from lqr.figure_style import *
+from figure_style import *
 from scipy import stats
 import shutil
 

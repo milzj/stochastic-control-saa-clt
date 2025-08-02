@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import numpy as np
 import matplotlib.pyplot as plt
-from lqr.figure_style import *
+from figure_style import *
 from matplotlib.ticker import MaxNLocator
 from typing import Dict, Any, Tuple, List
 from mpl_toolkits.mplot3d import Axes3D # Import for 3D plotting
