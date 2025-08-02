@@ -56,7 +56,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgments
 
-[GitHub Copilot](https://github.com/features/copilot) (with Claude Sonnet 4 Gemini 2.5 Pro) and 
+[GitHub Copilot](https://github.com/features/copilot) (with Claude Sonnet 4 and Gemini 2.5 Pro) and 
 Gemini's 2.5 Pro model have been used to assist in code 
 generation and documentation.
 
