@@ -46,7 +46,8 @@ def compute_lq_simulation_results(params):
             print(f"Running Replication {r + 1}/{REPLICATIONS}...")
 
         # Generate noise for this replication
-        noise = streams[r].normal(loc=0, scale=SIGMA, size=(T, N))
+        #noise = streams[r].normal(loc=0, scale=SIGMA, size=(T, N))
+        noise = streams[r].uniform(low=-np.sqrt(3)*SIGMA, high=np.sqrt(3)*SIGMA, size=(T, N))
 
         xi_bar = np.mean(noise, axis=1)
         xi_sq_bar = np.mean(noise**2, axis=1)

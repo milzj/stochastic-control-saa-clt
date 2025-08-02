@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cvxpy as cp
-from figure_style import *
+
 
 import os
 save_path = "../../data/value_functions"
@@ -44,6 +44,7 @@ def compute_saa_value_functions_backward(params, N):
 
     rng = np.random.default_rng(12345)
     noise_samples = rng.normal(loc=0, scale=Sigma, size=(T, N))
+    noise_samples = rng.uniform(low=-np.sqrt(3)*Sigma, high=np.sqrt(3)*Sigma, size=(T, N))
 
     P_coeffs = np.zeros(T + 1)
     k_coeffs = np.zeros(T + 1)
@@ -79,6 +80,7 @@ def compute_true_value_function(params):
     """Computes the true value function coefficients by solving the Riccati equation."""
     A, B, Q, R = params["A"], params["B"], params["Q"], params["R"]
     T, Sigma = params["T"], params["Sigma"]
+    
 
     P_true = np.zeros(T + 1)
     q_true = np.zeros(T + 1)
@@ -122,7 +124,7 @@ def plot_value_functions(P_saa, k_saa, q_saa, P_true, q_true, time_points, N):
 if __name__ == '__main__':
     import problem_data as problem_data
     lqr_params = problem_data.system_parameters()
-    Ns = [1, 10, 100]
+    Ns = [1, 10, 100, 1000]
 
     print("Computing SAA value functions using numerical optimization...")
 
