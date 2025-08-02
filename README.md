@@ -36,7 +36,7 @@ We establish central limit theorems for the sample average approximation (SAA) m
    pip install -r requirements.txt
    ```
 
-## Usage
+## Replicating results
 
 Navigate to the `scripts` directory 
 
