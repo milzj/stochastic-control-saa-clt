@@ -40,11 +40,14 @@ We establish central limit theorems for the sample average approximation (SAA) m
 
 ## Usage
 
-Navigate to the `scripts` directory and run the scripts:
+Navigate to the `scripts` directory 
 
 ```bash
-cd lqr
+```
 
+and run the scripts:
+
+```bash
 python3 plot_true_variance.py && python3 plot_histograms_qqplots.py
 ```
 
