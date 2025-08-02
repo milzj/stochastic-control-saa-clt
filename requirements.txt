@@ -4,31 +4,61 @@
 #
 #    pip-compile --output-file=requirements.txt pyproject.toml
 #
+cffi==1.17.1
+    # via clarabel
+clarabel==0.11.1
+    # via cvxpy
 contourpy==1.3.3
     # via matplotlib
+cvxpy==1.7.1
+    # via stochastic-control-saa-clt (pyproject.toml)
 cycler==0.12.1
     # via matplotlib
 fonttools==4.59.0
     # via matplotlib
+jinja2==3.1.6
+    # via osqp
+joblib==1.5.1
+    # via osqp
 kiwisolver==1.4.8
     # via matplotlib
+markupsafe==3.0.2
+    # via jinja2
 matplotlib==3.10.5
-    # via stochastic-control-analysis (pyproject.toml)
+    # via stochastic-control-saa-clt (pyproject.toml)
 numpy==2.3.2
     # via
+    #   clarabel
     #   contourpy
+    #   cvxpy
     #   matplotlib
+    #   osqp
     #   scipy
-    #   stochastic-control-analysis (pyproject.toml)
+    #   scs
+    #   stochastic-control-saa-clt (pyproject.toml)
+osqp==1.0.4
+    # via cvxpy
 packaging==25.0
     # via matplotlib
 pillow==11.3.0
     # via matplotlib
+pycparser==2.22
+    # via cffi
 pyparsing==3.2.3
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
 scipy==1.16.1
-    # via stochastic-control-analysis (pyproject.toml)
+    # via
+    #   clarabel
+    #   cvxpy
+    #   osqp
+    #   scs
+    #   stochastic-control-saa-clt (pyproject.toml)
+scs==3.2.7.post2
+    # via cvxpy
 six==1.17.0
     # via python-dateutil
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

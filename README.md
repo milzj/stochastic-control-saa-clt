@@ -1,21 +1,17 @@
-# Stochastic Control Analysis: Sample Average Approximation and Central Limit Theorem for LQR Systems
+# Supplementary code for the manuscript: Central Limit Theorems for Sample Average Approximations in Stochastic Optimal Control
 
-This repository contains Python code for analyzing Linear Quadratic Regulator (LQR) systems using Sample Average Approximation (SAA) and Central Limit Theorem (CLT) analysis. The project focuses on understanding the statistical properties of value function approximations in stochastic optimal control.
+This repository contains supplementary code for the manuscript
+> Johannes Milz and Alexander Shapiro, "Central Limit Theorems for Sample Average Approximations in Stochastic Optimal Control", 2025.
 
-## Overview
+## Abstract
 
-The project implements:
-- **Linear Quadratic Regulator (LQR)** systems with stochastic disturbances
-- **Sample Average Approximation (SAA)** for value function estimation
-- **Statistical analysis** including histograms, Q-Q plots, and variance decomposition
-- **Visualization tools** for understanding convergence properties and distribution behavior
-
+We establish central limit theorems for the sample average approximation (SAA) method in discrete-time, finite-horizon stochastic optimal control. Using the dynamic programming principle and backward induction, we characterize the limiting distribution of the SAA value functions. A key result is that the asymptotic variance at each stage decomposes into two components: a current-stage variance arising from immediate randomness, and a propagated future variance accumulated from subsequent stages. This decomposition clarifies how statistical uncertainty propagates backward through time. Our derivation relies on a stochastic equicontinuity condition, for which we provide sufficient conditions. We illustrate the variance decomposition using the classical linear-quadratic regulator (LQR) problem. Although its unbounded state and control spaces violate the compactness assumptions of our framework, the LQR setting enables explicit computation and visualization of both variance components.
 
 ## Installation
 
 ### Dependencies
-- See requirements in `lqr/requirements.txt` for specific package versions.
-- Python 3.8 or higher is recommended.
+- See requirements in [requirements.txt](requirements.txt) for specific package versions.
+- Python 3.8 or higher is recommended. We have tested the code with Python 3.11.
 
 ### Setup
 
@@ -27,8 +23,8 @@ The project implements:
 
 2. **Create a virtual environment (recommended):**
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   python3 -m venv venv
+   source venv/bin/activate 
    ```
 
 3. **Install dependencies:**
@@ -36,45 +32,31 @@ The project implements:
    cd lqr
    python3 -m pip install -r requirements.txt
    ```
-    Or 
-    ```bash
+   Or 
+   ```bash
    cd lqr
    pip install -r requirements.txt
    ```
 
 ## Usage
 
-### Quick Start
-
-Navigate to the `lqr` directory and run the analysis scripts:
+Navigate to the `scripts` directory and run the scripts:
 
 ```bash
 cd lqr
 
-# Generate histograms and Q-Q plots
-python lqr_histograms_qqplots.py
-
-# Perform variance analysis
-python lqr_variance_revised.py
+python3 plot_true_variance.py && python3 plot_histograms_qqplots.py
 ```
-
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Citation
+## Acknowledgments
 
-If you use this code in your research, please cite:
-
-```bibtex
-@software{stochastic_control_saa_clt,
-  title={Stochastic Control Analysis: SAA and CLT for LQR Systems},
-  author={Your Name},
-  year={2025},
-  url={https://github.com/milzj/stochastic-control-saa-clt}
-}
-```
+[GitHub Copilot](https://github.com/features/copilot) (with Claude Sonnet 4 Gemini 2.5 Pro) and 
+Gemini's 2.5 Pro model have been used to assist in code 
+generation and documentation.
 
 ## Contact
 

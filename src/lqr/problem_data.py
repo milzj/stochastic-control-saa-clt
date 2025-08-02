@@ -4,8 +4,8 @@ def system_parameters():
         "A": 1.0,       # System dynamics
         "B": 1.0,       # Control influence
         "Q": 1.0,       # State cost
-        "R": 0.5,       # Control cost
-        "Sigma": 0.2,   # Noise standard deviation
+        "R": 1.0,       # Control cost
+        "Sigma": 1.0,   # Noise standard deviation
         "T": 20,        # Time horizon
     }
 

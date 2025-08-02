@@ -3,28 +3,17 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "stochastic-control-analysis"
+name = "stochastic-control-saa-clt"
 version = "0.1.0"
-description = "Stochastic control analysis with SAA and CLT for LQR systems"
+description = "Supplementary code for the manuscript: Central Limit Theorems for Sample Average Approximations in Stochastic Optimal Control"
 readme = "README.md"
 authors = [
     {name = "Your Name", email = "your.email@example.com"}
 ]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Topic :: Scientific/Engineering :: Mathematics",
-]
 requires-python = ">=3.8"
 dependencies = [
-    "numpy>=1.20.0",
-    "matplotlib>=3.3.0",
-    "scipy>=1.7.0",
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "cvxpy"
 ]
