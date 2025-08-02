@@ -29,12 +29,10 @@ We establish central limit theorems for the sample average approximation (SAA) m
 
 3. **Install dependencies:**
    ```bash
-   cd lqr
    python3 -m pip install -r requirements.txt
    ```
    Or 
    ```bash
-   cd lqr
    pip install -r requirements.txt
    ```
 
@@ -43,6 +41,7 @@ We establish central limit theorems for the sample average approximation (SAA) m
 Navigate to the `scripts` directory 
 
 ```bash
+cd scripts
 ```
 
 and run the scripts:
