@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1006292397.svg)](https://doi.org/10.5281/zenodo.16733441)
+
 # Supplementary code for the manuscript: Central Limit Theorems for Sample Average Approximations in Stochastic Optimal Control
 
 This repository contains supplementary code for the manuscript
