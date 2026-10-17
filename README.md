@@ -102,6 +102,13 @@ This project is licensed under the [MIT License](LICENSE).
 Gemini's 2.5 Pro model have been used to assist in code 
 generation and documentation.
 
+[OpenAI Codex](https://developers.openai.com/codex/) (desktop application
+version 26.1007.71326, build 20398; used on October 17, 2026) assisted with
+implementation and mathematical review, the uniform-noise variance correction,
+regression tests, plotting fixes, GitHub Actions, and documentation. Additional
+Codex agents reviewed the changes. Validation included independent quadrature,
+scenario-tree optimization, and regression tests.
+
 ## Contact
 
 For questions or issues, please open an issue on GitHub.
