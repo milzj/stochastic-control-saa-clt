@@ -1,9 +1,9 @@
-[![DOI](https://zenodo.org/badge/1006292397.svg)](https://doi.org/10.5281/zenodo.16733441)
+[![DOI](https://zenodo.org/badge/1006292397.svg)](https://doi.org/10.5281/zenodo.16733441) [![arXiv](https://img.shields.io/badge/arXiv-2508.01942-b31b1b.svg)](https://arxiv.org/abs/2508.01942)
 
 # Supplementary code for the manuscript: Central Limit Theorems for Sample Average Approximations in Stochastic Optimal Control
 
 This repository contains supplementary code for the manuscript
-> Johannes Milz and Alexander Shapiro, "Central Limit Theorems for Sample Average Approximations in Stochastic Optimal Control", 2025.
+> Johannes Milz and Alexander Shapiro, "[Central Limit Theorems for Sample Average Approximations in Stochastic Optimal Control](https://arxiv.org/abs/2508.01942)", 2025.
 
 ## Abstract
 
@@ -13,7 +13,7 @@ We establish central limit theorems for the Sample Average Approximation (SAA) m
 
 ### Dependencies
 - See requirements in [requirements.txt](requirements.txt) for specific package versions.
-- Python 3.8 or higher is recommended. We have tested the code with Python 3.11.
+- Python 3.11 or higher is required.
 
 ### Setup
 
@@ -58,9 +58,9 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgments
 
-[GitHub Copilot](https://github.com/features/copilot) (with Claude Sonnet 4 and Gemini 2.5 Pro) and 
-Gemini's 2.5 Pro model have been used to assist in code 
-generation and documentation.
+[GitHub Copilot](https://github.com/features/copilot) (with Claude Sonnet 4 and Gemini 2.5 Pro),
+Gemini's 2.5 Pro model, and [OpenAI Codex](https://developers.openai.com/codex/)
+(version 26.1007.71326) have been used to assist in code generation and documentation.
 
 ## Contact
 

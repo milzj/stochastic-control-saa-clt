@@ -1,19 +1,44 @@
-import os
+from pathlib import Path
 import sys
 
 # Add the src directory to the Python path so we can import lqr
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / 'src'))
 
-save_path = "../data/histograms_qqplots"
-os.makedirs(save_path, exist_ok=True)
+save_path = PROJECT_ROOT / 'data' / 'histograms_qqplots'
 
 import numpy as np
 import matplotlib.pyplot as plt
-from figure_style import *
+if __package__:
+    from . import figure_style
+else:
+    import figure_style
 from scipy import stats
-import shutil
 
-def plot_histograms(results, params, save_path):
+def _padded_limits(low, high):
+    width = high - low
+    if width == 0:
+        width = max(abs(low), 1.0)
+    return low - 0.05 * width, high + 0.05 * width
+
+
+def _samples(results, minimum_size=1):
+    if not results:
+        raise ValueError("At least one stage of simulation results is required.")
+    samples = {t: np.asarray(values, dtype=float) for t, values in results.items()}
+    for values in samples.values():
+        if values.ndim != 1 or values.size < minimum_size or not np.isfinite(values).all():
+            raise ValueError(f"Each stage must contain at least {minimum_size} finite samples.")
+    return samples
+
+
+def _save_figure(fig, directory, filename):
+    directory = Path(directory)
+    directory.mkdir(parents=True, exist_ok=True)
+    fig.savefig(directory / filename, bbox_inches='tight')
+
+
+def plot_histograms(results, params, save_path=save_path):
     """
     Plots each histogram from the simulation results in a separate figure,
     with simulation parameters added to the legend.
@@ -27,6 +52,8 @@ def plot_histograms(results, params, save_path):
     REPLICATIONS = params.get('REPLICATIONS')
     X_EVAL = params.get('X_EVAL')
 
+    results = _samples(results)
+
     global_min_x = np.inf
     global_max_x = -np.inf
     global_min_y = np.inf
@@ -38,9 +65,9 @@ def plot_histograms(results, params, save_path):
         print("mu", mu)
         print("std", std)
 
-        # Determine min/max for x-axis using 3-sigma rule
-        current_min_x = mu - 3 * std
-        current_max_x = mu + 3 * std
+        # Show all samples as well as the central range of the fitted normal.
+        current_min_x = min(float(np.min(data)), mu - 3 * std)
+        current_max_x = max(float(np.max(data)), mu + 3 * std)
         if current_min_x < global_min_x:
             global_min_x = current_min_x
         if current_max_x > global_max_x:
@@ -49,13 +76,14 @@ def plot_histograms(results, params, save_path):
         # Calculate histogram to determine y-limits
         counts, bin_edges = np.histogram(data, bins=100, density=True)
         max_density = np.max(counts)
+        if std > 0:
+            max_density = max(max_density, 1 / (std * np.sqrt(2 * np.pi)))
         if max_density > global_max_y:
             global_max_y = max_density
         if 0 < global_min_y:  # Keep minimum y at 0 for histograms
             global_min_y = 0
 
-    x_range = global_max_x - global_min_x
-    x_limit = (global_min_x - 0.05 * x_range, global_max_x + 0.05 * x_range)
+    x_limit = _padded_limits(global_min_x, global_max_x)
     
     # Add 5% buffer to y-axis
     y_range = global_max_y - global_min_y
@@ -66,7 +94,7 @@ def plot_histograms(results, params, save_path):
     min_t = min(results.keys())
     for t, data in results.items():
         # 1. Create a new figure
-        plt.figure()
+        fig = plt.figure()
 
         # 2. Plot the main data
         label = r'$N^{1/2}(\hat{V}_{t,N}(x_t) - V_t(x_t))$'
@@ -74,15 +102,15 @@ def plot_histograms(results, params, save_path):
         plt.hist(data, bins=100, color="tab:blue", density=True,  alpha=0.7, label=label)
 
         mu, std = np.mean(data), np.std(data)
-        xmin, xmax = plt.xlim()
-        x_fit = np.linspace(xmin, xmax, 100)
-        y_fit = (1/(std * np.sqrt(2 * np.pi))) * np.exp(-(x_fit - mu)**2 / (2 * std**2))
-        plt.plot(x_fit, y_fit, color='tab:orange',  label='Normal fit')
+        if std > 0:
+            x_fit = np.linspace(*x_limit, 100)
+            y_fit = stats.norm.pdf(x_fit, loc=mu, scale=std)
+            plt.plot(x_fit, y_fit, color='tab:orange', label='Normal fit')
 
         # 3. Create an invisible proxy artist for the parameters text
         params_label = f"$t={t}$,\n$x_t={X_EVAL}$,\n$N={N}$,\n replications=${REPLICATIONS}$"
 
-        if shutil.which("latex"):
+        if plt.rcParams["text.usetex"]:
             params_label = (
             fr"$\begin{{array}}{{rl}}"
             fr"t & = {t} \\ "
@@ -100,11 +128,11 @@ def plot_histograms(results, params, save_path):
 
         # 4. Manually order the legend handles
         handles, labels = plt.gca().get_legend_handles_labels()
-        # The desired order is [params, data, fit], which corresponds to indices [2, 0, 1]
+        order = [labels.index(params_label)]
         if t == min_t:
-            order = [2, 0, 1]
-        else:
-            order = [2]
+            order.append(labels.index(label))
+            if std > 0:
+                order.append(labels.index('Normal fit'))
             
         plt.legend([handles[idx] for idx in order], [labels[idx] for idx in order], loc='upper left')
 
@@ -115,89 +143,62 @@ def plot_histograms(results, params, save_path):
         plt.ylim(y_limit)
         plt.grid(True, linestyle='--', alpha=0.6)
         filename = f"histogram_t{t}_N{N}_reps{REPLICATIONS}.pdf"
-        plt.savefig(save_path + "/"  +  filename, bbox_inches='tight')
-        plt.close()
+        _save_figure(fig, save_path, filename)
+        plt.close(fig)
 
 
     print("--- Plotting Complete ---")
 
-def plot_probplot_scipy_plots(results, params, save_path=''):
-  """
-  Plots each Q-Q plot from simulation results using scipy.stats.probplot.
-  Uses a consistent axis range and shows parameters in a legend.
-  """
-  # Unpack parameters
-  N = params.get('N')
-  REPLICATIONS = params.get('REPLICATIONS')
-  X_EVAL = params.get('X_EVAL')
+def plot_probplot_scipy_plots(results, params, save_path=save_path):
+    """Plot sample versus standard-normal quantiles using common axis limits."""
+    N = params.get('N')
+    REPLICATIONS = params.get('REPLICATIONS')
+    X_EVAL = params.get('X_EVAL')
+    results = _samples(results, minimum_size=2)
 
-  if save_path and not os.path.exists(save_path):
-    os.makedirs(save_path)
+    # SciPy returns (theoretical quantiles, ordered samples), then the fit.
+    quantiles = {
+        t: stats.probplot(data, dist="norm") for t, data in results.items()
+    }
+    global_min_x, global_max_x = np.inf, -np.inf
+    global_min_y, global_max_y = np.inf, -np.inf
+    for (osm, osr), (slope, intercept, _) in quantiles.values():
+        fitted = intercept + slope * osm
+        global_min_x = min(global_min_x, float(osm.min()))
+        global_max_x = max(global_max_x, float(osm.max()))
+        global_min_y = min(global_min_y, float(osr.min()), float(fitted.min()))
+        global_max_y = max(global_max_y, float(osr.max()), float(fitted.max()))
+    x_limit_qq = _padded_limits(global_min_x, global_max_x)
+    y_limit_qq = _padded_limits(global_min_y, global_max_y)
 
-  # --- Pre-calculate unified axis ranges for all Q-Q plots ---
-  global_min_x, global_max_x = np.inf, -np.inf
-  global_min_y, global_max_y = np.inf, -np.inf
+    print("--- Generating Separate Q-Q Plots (using SciPy) ---")
+    for t, ((osm, osr), (slope, intercept, _)) in quantiles.items():
+        fig, ax = plt.subplots(figsize=(5, 5))
+        ax.plot(osm, osr, 'o', color='tab:blue')
+        ax.plot(osm, intercept + slope * osm, color='tab:orange')
+        ax.set_xlim(x_limit_qq)
+        ax.set_ylim(y_limit_qq)
+        ax.set_xlabel('Theoretical Quantiles')
+        ax.set_ylabel('Sample Quantiles')
 
-  print("--- Pre-calculating Q-Q axis ranges for consistency (using SciPy) ---")
-  for data_list in results.values():
-    data = np.array(data_list)
-    # Get quantiles from scipy.stats.probplot without plotting
-    (sample_quantiles, theoretical_quantiles), _ = stats.probplot(data, dist="norm")
-    global_min_x = min(global_min_x, np.min(theoretical_quantiles))
-    global_max_x = max(global_max_x, np.max(theoretical_quantiles))
-    global_min_y = min(global_min_y, np.min(sample_quantiles))
-    global_max_y = max(global_max_y, np.max(sample_quantiles))
-    # Add a 5% buffer to the ranges for better visualization
-    x_range = global_max_x - global_min_x
-    y_range = global_max_y - global_min_y
-    x_limit_qq = (global_min_x - 0.05 * x_range, global_max_x + 0.05 * x_range)
-    y_limit_qq = (global_min_y - 0.05 * y_range, global_max_y + 0.05 * y_range)
-
-  print("--- Generating Separate Q-Q Plots (using SciPy) ---")
-  for t, data_list in results.items():
-    data = np.array(data_list)
-    fig, ax = plt.subplots(figsize=(5, 5))
-
-    # --- Use scipy.stats.probplot to generate and plot the points ---
-    (osm, osr), (slope, intercept, r) = stats.probplot(data, dist="norm", plot=ax)
-    # --- Manually draw the best-fit line in orange ---
-    # The 'osr' contains the x-coordinates (theoretical quantiles)
-    ax.plot(osr, intercept + slope * osr, color='tab:orange')
-    # Apply the unified axis limits
-    ax.set_xlim(y_limit_qq)
-    ax.set_ylim(x_limit_qq)
-
-    ax.plot(osm, osr, 'o', color='tab:blue')
-    ax.plot(osm, osm * slope + intercept, color='tab:orange')
-
-    # Set title and labels
-    ax.set_xlabel('Theoretical Quantiles')
-    ax.set_ylabel('Sample Quantiles')
-    ax.set_title("")
-
-    # Create an invisible artist for the parameters text to put in the legend
-    params_label = f"$t={t}$,\n$x_t={X_EVAL}$,\n$N={N}$,\n replications=${REPLICATIONS}$"
-
-    if shutil.which("latex"):
-        params_label = (
-        fr"$\begin{{array}}{{rl}}"
-        fr"t & = {t} \\ "
-        fr"x_t & = {X_EVAL} \\ "
-        fr"N & = {N} \\"
-        fr"\# \mathrm{{replications}}  & = {REPLICATIONS} \\"
-        r"\end{array}$"
-    )
-
-    ax.plot([], [], ' ', label=params_label)
-    # Get all handles, but only display the legend for our custom parameter box
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend([handles[-1]], [labels[-1]], loc='best',
-    handlelength=0, handletextpad=0)
-
-    ax.grid(True, linestyle='--', alpha=0.6)
-    filename = f"probplot_scipy_plot_t{t}_N{N}_reps{REPLICATIONS}.pdf"
-    plt.savefig(os.path.join(save_path, filename), bbox_inches='tight')
-    plt.close()
+        params_label = f"$t={t}$,\n$x_t={X_EVAL}$,\n$N={N}$,\n replications=${REPLICATIONS}$"
+        if plt.rcParams["text.usetex"]:
+            params_label = (
+                fr"$\begin{{array}}{{rl}}"
+                fr"t & = {t} \\ "
+                fr"x_t & = {X_EVAL} \\ "
+                fr"N & = {N} \\"
+                fr"\# \mathrm{{replications}}  & = {REPLICATIONS} \\"
+                r"\end{array}$"
+            )
+        ax.plot([], [], ' ', label=params_label)
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend([handles[-1]], [labels[-1]], loc='best',
+                  handlelength=0, handletextpad=0)
+        ax.grid(True, linestyle='--', alpha=0.6)
+        filename = f"probplot_scipy_plot_t{t}_N{N}_reps{REPLICATIONS}.pdf"
+        _save_figure(fig, save_path, filename)
+        plt.close(fig)
     print("--- Q-Q Plotting Complete ---")
 
 if __name__ == '__main__':

@@ -1,11 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cvxpy as cp
+from pathlib import Path
 
 
-import os
-save_path = "../../data/value_functions"
-os.makedirs(save_path, exist_ok=True)
+save_path = Path(__file__).resolve().parents[2] / "data" / "value_functions"
 
 def _compute_saa_value_at_x_numerically(x, P_next, k_next, q_next, noise_t, params):
     """
@@ -34,16 +33,21 @@ def _compute_saa_value_at_x_numerically(x, P_next, k_next, q_next, noise_t, para
     # Solve the problem to find the minimum value, which is V_t(x)
     problem.solve()
 
+    if problem.status != cp.OPTIMAL or problem.value is None or not np.isfinite(problem.value):
+        raise RuntimeError(f"SAA minimization failed at x={x}: status={problem.status}")
+
     # Return the optimal value
     return problem.value
 
 
 def compute_saa_value_functions_backward(params, N):
-    """Computes SAA value functions by solving a linear system at each step."""
+    """Computes SAA value functions using independent, centered uniform noise."""
     T, Sigma, Q = params["T"], params["Sigma"], params["Q"]
+    if isinstance(N, (bool, np.bool_)) or not isinstance(N, (int, np.integer)) or N < 1:
+        raise ValueError("N must be a positive integer")
 
     rng = np.random.default_rng(12345)
-    noise_samples = rng.normal(loc=0, scale=Sigma, size=(T, N))
+    #noise_samples = rng.normal(loc=0, scale=Sigma, size=(T, N))
     noise_samples = rng.uniform(low=-np.sqrt(3)*Sigma, high=np.sqrt(3)*Sigma, size=(T, N))
 
     P_coeffs = np.zeros(T + 1)
@@ -98,6 +102,7 @@ def compute_true_value_function(params):
 def plot_value_functions(P_saa, k_saa, q_saa, P_true, q_true, time_points, N):
     """Plots the SAA and true value functions for selected time points."""
     x_grid = np.linspace(-2, 2, 40)
+    save_path.mkdir(parents=True, exist_ok=True)
     
 
     for t in time_points:
@@ -118,11 +123,15 @@ def plot_value_functions(P_saa, k_saa, q_saa, P_true, q_true, time_points, N):
         plt.legend()
         plt.grid(True, which='both', linestyle='--', linewidth=0.5)
         plt.tight_layout()
-        plt.savefig(save_path + "/"+ "saa_vs_true_vf_numerical_t={}_N={}.pdf".format(t,N))
+        plt.savefig(save_path / "saa_vs_true_vf_numerical_t={}_N={}.pdf".format(t,N))
+        plt.close()
 
 # --- Main Execution ---
 if __name__ == '__main__':
-    import problem_data as problem_data
+    if __package__:
+        from . import problem_data
+    else:
+        import problem_data
     lqr_params = problem_data.system_parameters()
     Ns = [1, 10, 100, 1000]
 
