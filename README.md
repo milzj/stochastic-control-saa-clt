@@ -33,14 +33,14 @@ We establish central limit theorems for the Sample Average Approximation (SAA) m
    ```bash
    python3 -m pip install -r requirements.txt
    ```
-   Or
+   Or 
    ```bash
    pip install -r requirements.txt
    ```
 
 ## Replicating results
 
-Navigate to the `scripts` directory
+Navigate to the `scripts` directory 
 
 ```bash
 cd scripts
@@ -51,16 +51,6 @@ and run the scripts:
 ```bash
 python3 plot_true_variance.py && python3 plot_histograms_qqplots.py
 ```
-
-## Tests
-
-From the repository root:
-
-```bash
-PYTHONPATH=src python3 -m unittest discover -s tests -v
-```
-
-[GitHub Actions](.github/workflows/tests.yml) runs the tests on pushes and pull requests.
 
 ## License
 
