@@ -13,7 +13,7 @@ We establish central limit theorems for the Sample Average Approximation (SAA) m
 
 ### Dependencies
 - See requirements in [requirements.txt](requirements.txt) for specific package versions.
-- Python 3.11 or higher is required by the pinned dependencies. The simulation also uses NumPy 1.25 or newer for independent random streams.
+- Python 3.11 or higher is required.
 
 ### Setup
 
@@ -33,64 +33,34 @@ We establish central limit theorems for the Sample Average Approximation (SAA) m
    ```bash
    python3 -m pip install -r requirements.txt
    ```
-   To install the local package as well (for example, to run the numerical
-   value-function module), run:
+   Or
    ```bash
-   python3 -m pip install --no-deps -e .
+   pip install -r requirements.txt
    ```
 
 ## Replicating results
 
-Run from the repository root:
+Navigate to the `scripts` directory
 
 ```bash
-python3 scripts/plot_true_variance.py
-python3 scripts/plot_histograms_qqplots.py
+cd scripts
 ```
 
-The scripts also work from the `scripts` directory. All output paths are
-resolved relative to the repository, so plots always go to
-`data/true_variance/` and `data/histograms_qqplots/`.
-
-The experiments use independent disturbances
-`Uniform(-sqrt(3)*Sigma, sqrt(3)*Sigma)`, where `Sigma` is the noise standard
-deviation (one by default). The analytic variance uses
-`Var(xi**2) = (4/5)*Sigma**4`, consistent with these uniform samples.
-`Sigma` is not the covariance matrix in the paper's multivariate notation;
-this implementation is scalar.
-
-The default simulation uses seed 12345, sample size 1000, 10,000 histogram
-replications, and 50, 100, 500, and 1000 replications for the Q-Q plots.
-Histograms show fitted normal densities; Q-Q plots compare the scaled
-estimation errors to normal quantiles. The normal limit does not require
-Gaussian disturbances.
-
-After installing the package, the separate numerical value-function
-comparison can be run with:
+and run the scripts:
 
 ```bash
-python3 -m lqr.value_functions
+python3 plot_true_variance.py && python3 plot_histograms_qqplots.py
 ```
 
-Its figures are saved in `data/value_functions/`.
+## Tests
 
-## Checking the implementation
-
-From the repository root, run:
+From the repository root:
 
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
 
-The regression checks compare the analytic variance with independent
-quadrature and the SAA recursion with numerical minimization, and check
-the plotted coordinates and script entry points.
-
-The [GitHub Actions test workflow](.github/workflows/tests.yml) runs these
-checks on Python 3.11 and 3.12 for pushes and pull requests. It can also be
-started manually from the repository's Actions tab. CI uses the pinned
-dependencies and a noninteractive plotting backend; no LaTeX installation is
-required.
+[GitHub Actions](.github/workflows/tests.yml) runs the tests on pushes and pull requests.
 
 ## License
 
