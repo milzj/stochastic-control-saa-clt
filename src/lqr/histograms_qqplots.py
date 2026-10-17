@@ -3,6 +3,7 @@ import numpy as np
 def compute_lq_simulation_results(params):
     """
     Computes the normalized difference between SAA and true value functions.
+    Noise is uniform on [-sqrt(3)*Sigma, sqrt(3)*Sigma], with variance Sigma**2.
 
     Args:
         params (dict): A dictionary containing all system and SAA parameters.
@@ -12,16 +13,29 @@ def compute_lq_simulation_results(params):
               the computed normalized differences.
     """
     # Unpack parameters
-    A = params.get('A')
-    B = params.get('B')
-    Q = params.get('Q')
-    R = params.get('R')
-    SIGMA = params.get('Sigma')
-    T = params.get('T')
-    X_EVAL = params.get('X_EVAL')
-    N = params.get('N')
-    REPLICATIONS = params.get('REPLICATIONS')
-    HISTOGRAM_TIMES = params.get('HISTOGRAM_TIMES')
+    A = params['A']
+    B = params['B']
+    Q = params['Q']
+    R = params['R']
+    SIGMA = params['Sigma']
+    T = params['T']
+    X_EVAL = params['X_EVAL']
+    N = params['N']
+    REPLICATIONS = params['REPLICATIONS']
+    HISTOGRAM_TIMES = params['HISTOGRAM_TIMES']
+
+    for name, count in [('T', T), ('N', N), ('REPLICATIONS', REPLICATIONS)]:
+        if isinstance(count, (bool, np.bool_)) or not isinstance(count, (int, np.integer)) or count < 1:
+            raise ValueError(f"{name} must be a positive integer")
+    if len(HISTOGRAM_TIMES) == 0 or any(
+        isinstance(t, (bool, np.bool_)) or not isinstance(t, (int, np.integer)) or not 1 <= t <= T
+        for t in HISTOGRAM_TIMES
+    ):
+        raise ValueError("HISTOGRAM_TIMES must contain stages between 1 and T")
+    if not np.isfinite(SIGMA) or SIGMA < 0:
+        raise ValueError("Sigma must be a finite, nonnegative noise standard deviation")
+    if not np.isfinite(Q) or Q < 0 or not np.isfinite(R) or R <= 0:
+        raise ValueError("Q must be nonnegative and R must be positive, both finite")
 
     parent_rng = np.random.default_rng(12345)
     streams = parent_rng.spawn(REPLICATIONS)

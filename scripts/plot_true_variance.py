@@ -1,25 +1,30 @@
 
-import os
+from pathlib import Path
 import sys
 
 # Add the src directory to the Python path so we can import lqr modules
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / 'src'))
 
 import numpy as np
 import matplotlib.pyplot as plt
-from figure_style import *
+if __package__:
+    from . import figure_style
+else:
+    import figure_style
 from matplotlib.ticker import MaxNLocator
 from typing import Dict, Any, Tuple, List
 from mpl_toolkits.mplot3d import Axes3D # Import for 3D plotting
 from lqr import problem_data
 from lqr import true_variance
 
-import os
+save_path = PROJECT_ROOT / 'data' / 'true_variance'
 
 
-
-save_path = "../data/true_variance"
-os.makedirs(save_path, exist_ok=True)
+def _save_figure(fig, filename):
+    directory = Path(save_path)
+    directory.mkdir(parents=True, exist_ok=True)
+    fig.savefig(directory / filename, bbox_inches='tight')
 
 def plot_variance_components(params: Dict[str, Any], S_series: np.ndarray, v_series: np.ndarray):
     """
@@ -38,9 +43,9 @@ def plot_variance_components(params: Dict[str, Any], S_series: np.ndarray, v_ser
     plt.xlim(1, params["T"])
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
     filename = "variance_components.pdf"
-    fig.savefig(save_path + "/" + filename, bbox_inches='tight')
+    _save_figure(fig, filename)
     print(f"Plot saved to {filename}")
-    plt.close()
+    plt.close(fig)
 
 def plot_variance_snapshots(params: Dict[str, Any], S_series: np.ndarray, v_series: np.ndarray):
     """
@@ -63,9 +68,9 @@ def plot_variance_snapshots(params: Dict[str, Any], S_series: np.ndarray, v_seri
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
     filename = "variance_snapshots.pdf"
-    fig.savefig(save_path + "/" + filename, bbox_inches='tight')
+    _save_figure(fig, filename)
     print(f"Plot saved to {filename}")
-    plt.close()
+    plt.close(fig)
 
 def plot_decomposition_subplots(params: Dict[str, Any], P: np.ndarray, K: np.ndarray, S: np.ndarray, v: np.ndarray):
     """
@@ -84,7 +89,7 @@ def plot_decomposition_subplots(params: Dict[str, Any], P: np.ndarray, K: np.nda
             global_y_max = current_max
 
     # Set the consistent Y-axis limits with a 5% padding at the top
-    y_max_limit = global_y_max * 1.05
+    y_max_limit = max(global_y_max * 1.05, np.finfo(float).eps)
     y_min_limit = 0  # Variance is non-negative
 
     # --- Plotting Loop ---
@@ -123,9 +128,9 @@ def plot_decomposition_subplots(params: Dict[str, Any], P: np.ndarray, K: np.nda
         plt.tight_layout()
 
         filename = f"decomposition_x{str(x_val).replace('.', '_')}.pdf"
-        plt.savefig(save_path + "/" + filename, bbox_inches='tight')
-        plt.close()
-        print(f"Plot saved to {save_path + filename}")
+        _save_figure(fig, filename)
+        plt.close(fig)
+        print(f"Plot saved to {save_path / filename}")
 
 def plot_variance_surfaces(params: Dict[str, Any], P: np.ndarray, K: np.ndarray, S: np.ndarray, v: np.ndarray):
     """
@@ -153,9 +158,9 @@ def plot_variance_surfaces(params: Dict[str, Any], P: np.ndarray, K: np.ndarray,
 
         # Add colorbar and save the figure
         fig.colorbar(surf, ax=ax, shrink=0.4, aspect=10, pad=0.2)
-        plt.savefig(save_path + "/" + filename, bbox_inches='tight')
-        plt.close()
-        print(f"Plot saved to {save_path + filename}")
+        _save_figure(fig, filename)
+        plt.close(fig)
+        print(f"Plot saved to {save_path / filename}")
 
     # --- Main function logic ---
     T, A, B, Sigma = (params[k] for k in ["T", "A", "B", "Sigma"])
@@ -174,19 +179,19 @@ def plot_variance_surfaces(params: Dict[str, Any], P: np.ndarray, K: np.ndarray,
         M_t = A + B * K[t_array_idx]
         x_col = X_grid[:, t_idx]
         C1_grid[:, t_idx] = x_col**2 * M_t**2 * S_next + v_next
-        C2_grid[:, t_idx] = (4 * x_col**2 * M_t**2 * P_next**2 * Sigma**2) + (2 * P_next**2 * Sigma**4)
+        C2_grid[:, t_idx] = (4 * x_col**2 * M_t**2 * P_next**2 * Sigma**2) + (P_next**2 * true_variance.uniform_squared_noise_variance(Sigma))
     Total_C_grid = C1_grid + C2_grid
 
-    # Determine common z-axis limits based on the total variance
-    z_min = Total_C_grid.min()
-    z_max = Total_C_grid.max()
+    # Include the zero propagated component at the last stage in all scales.
+    z_min = 0.0
+    z_max = max(float(Total_C_grid.max()), np.finfo(float).eps)
     padding = (z_max - z_min) * 0.05
-    plot_z_min = z_min - padding
+    plot_z_min = z_min
     plot_z_max = z_max + padding
 
     # --- Call the helper function for each plot ---
-    _create_surface_plot(C1_grid, r'$\sigma_{1,\mathrm{prop}}^2(x_t)$', "variance_surface_propagated.pdf")
-    _create_surface_plot(C2_grid, r'$\sigma_{2,\mathrm{curr}}^2(x_t)$', "variance_surface_current.pdf")
+    _create_surface_plot(C1_grid, r'$\sigma_{t,\mathrm{prop}}^2(x_t)$', "variance_surface_propagated.pdf")
+    _create_surface_plot(C2_grid, r'$\sigma_{t,\mathrm{curr}}^2(x_t)$', "variance_surface_current.pdf")
     _create_surface_plot(Total_C_grid, r'$\sigma_{t,\mathrm{asymp}}^2(x_t)$', "variance_surface_total.pdf")
 
 

@@ -32,7 +32,7 @@ def variance_parameters():
     T = params["T"]
 
     _params = {
-        "snapshots_times": [1, T // 4, T // 2, (3 * T) // 4, T],
+        "snapshots_times": sorted({1, max(1, T // 4), max(1, T // 2), max(1, (3 * T) // 4), T}),
         "x_test_values": [0.5, 1.0, 1.5]
     }
 
