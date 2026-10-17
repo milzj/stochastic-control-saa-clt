@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1006292397.svg)](https://doi.org/10.5281/zenodo.16733441)
+
 # Supplementary code for the manuscript: Central Limit Theorems for Sample Average Approximations in Stochastic Optimal Control
 
 This repository contains supplementary code for the manuscript
@@ -7,7 +9,7 @@ This repository contains supplementary code for the manuscript
 
 ## Abstract
 
-We establish central limit theorems for the sample average approximation (SAA) method in discrete-time, finite-horizon stochastic optimal control. Using the dynamic programming principle and backward induction, we characterize the limiting distribution of the SAA value functions. A key result is that the asymptotic variance at each stage decomposes into two components: a current-stage variance arising from immediate randomness, and a propagated future variance accumulated from subsequent stages. This decomposition clarifies how statistical uncertainty propagates backward through time. Our derivation relies on a stochastic equicontinuity condition, for which we provide sufficient conditions. We illustrate the variance decomposition using the classical linear-quadratic regulator (LQR) problem. Although its unbounded state and control spaces violate the compactness assumptions of our framework, the LQR setting enables explicit computation and visualization of both variance components.
+We establish central limit theorems for the Sample Average Approximation (SAA) method in discrete-time, finite-horizon Stochastic Optimal Control. Using the dynamic programming principle and backward induction, we characterize the limiting distributions of the SAA value functions. The asymptotic variance at each stage decomposes into two components: a current-stage variance arising from immediate randomness, and a propagated future variance accumulated from subsequent stages. This decomposition clarifies how statistical uncertainty propagates backward through time. Our derivation relies on a stochastic equicontinuity condition, for which we provide sufficient conditions. We illustrate the variance decomposition using the classical Linear Quadratic Regulator (LQR) problem. Although its unbounded state and control spaces violate the compactness assumptions of our framework, the LQR setting enables explicit computation and visualization of both variance components.
 
 ## Installation
 
@@ -98,7 +100,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgments
 
-[GitHub Copilot](https://github.com/features/copilot) (with Claude Sonnet 4 Gemini 2.5 Pro),
+[GitHub Copilot](https://github.com/features/copilot) (with Claude Sonnet 4 and Gemini 2.5 Pro),
 Gemini's 2.5 Pro model, and [OpenAI Codex](https://developers.openai.com/codex/)
 (version 26.1007.71326) have been used to assist in code generation and documentation.
 
