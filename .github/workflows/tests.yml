@@ -23,7 +23,6 @@ jobs:
         python-version: ["3.11", "3.12"]
     env:
       MPLBACKEND: Agg
-      MPLCONFIGDIR: ${{ runner.temp }}/matplotlib
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - name: Check out the repository
@@ -46,4 +45,6 @@ jobs:
           python -m pip install --no-deps -e .
 
       - name: Run regression tests
+        env:
+          MPLCONFIGDIR: ${{ runner.temp }}/matplotlib
         run: python -m unittest discover -s tests -v
